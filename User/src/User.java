@@ -20,7 +20,6 @@ public record User(String username, String fullname, String email){
         }
 
         return new User(username, fullname, email);
-
     }
 
     public String format(){

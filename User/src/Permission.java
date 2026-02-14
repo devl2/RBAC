@@ -2,8 +2,7 @@ import java.util.Locale;
 
 public record Permission(String name, String resource, String description) {
     public Permission (String name, String resource, String description){
-
-        if (name.matches(".*\\s.*")){
+        if (name.matches("^.*\\s.*$")){
             throw new IllegalArgumentException("Поле name имеет пробелы");
         }
         if (description == null || description.isBlank()) {
