@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Role{
     private final String id;
-    private final String name;
+    private String name;
     private String description;
     private Set<Permission> permissions;
 
@@ -78,5 +78,9 @@ public class Role{
         }
 
         return result;
+    }
+
+    public String getName(){
+        return name;
     }
 }
