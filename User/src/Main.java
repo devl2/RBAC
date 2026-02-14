@@ -5,8 +5,17 @@ public class Main {
         try {
             User test1 = User.validate("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
             Permission test2 = Permission.validate("READ", "users", "askldlkasld");
+
+            Set<Permission> permissions = new HashSet<>();
+            permissions.add(new Permission("delete", "users", "Can delete users"));
+            permissions.add(new Permission("read", "users", "Can read users"));
+
+            Role test3 = Role.validate("admin", "full system access", permissions);
+
             System.out.println(test1.format());
             System.out.println(test2.format());
+            System.out.println(test3.format());
+
         } catch (IllegalArgumentException e) {
             System.out.println("Initialization error: " + e.getMessage());
         }
