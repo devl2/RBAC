@@ -22,6 +22,12 @@ public record User(String username, String fullname, String email){
         return new User(username, fullname, email);
     }
 
+    public String getUsername(){ return username(); }
+
+    public String getFullname(){ return fullname(); }
+
+    public String getEmail(){ return email(); }
+
     public String format(){
         return String.format("%s (%s) <%s>", username, fullname, email);
     }
