@@ -3,18 +3,35 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         try {
-            User test1 = User.validate("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
-            Permission test2 = Permission.validate("READ", "users", "askldlkasld");
+            User user = User.validate("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
+            Permission permission = Permission.validate("READ", "users", "askldlkasld");
 
             Set<Permission> permissions = new HashSet<>();
             permissions.add(new Permission("delete", "users", "Can delete users"));
             permissions.add(new Permission("read", "users", "Can read users"));
 
-            Role test3 = Role.validate("admin", "full system access", permissions);
+            Role adminRole = Role.validate("admin", "full system access", permissions);
 
-            System.out.println(test1.format());
-            System.out.println(test2.format());
-            System.out.println(test3.format());
+            AssignmentMetadata metadata_test = AssignmentMetadata.now("system", "Initial setup");
+
+            PermanentAssignment permanent_user = new PermanentAssignment(user, adminRole, metadata_test);
+
+            System.out.println(user.format());
+            System.out.println(permission.format());
+            System.out.println(adminRole.format());
+            System.out.println(metadata_test.format());
+            System.out.println(permanent_user.summary());
+
+            permanent_user.revoke();
+            System.out.println("after revoke: ");
+            System.out.println(permanent_user.summary());
+            TemporaryAssignment temporary = new TemporaryAssignment(user, adminRole, metadata_test, "2030-01-01", false);
+
+            System.out.println("Temporary assignment:");
+            System.out.println(temporary.summary());
+            System.out.println();
+
+            System.out.println("Is active: " + temporary.isActive());
 
         } catch (IllegalArgumentException e) {
             System.out.println("Initialization error: " + e.getMessage());
@@ -62,6 +79,21 @@ public class Main {
             permissions.add(new Permission("read", "users", "Can read users"));
             Role bad_user6 = Role.validate("admin", "full system access", permissions);
             System.out.println(bad_user6.format());
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+
+        try {
+            User user = User.validate("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
+
+            Set<Permission> permissionss = new HashSet<>();
+            permissionss.add(new Permission("delete", "users", "Can delete users"));
+            permissionss.add(new Permission("read", "users", "Can read users"));
+
+            Role adminRole = Role.validate("admin", "full system access", permissionss);
+            AssignmentMetadata metadata_test = AssignmentMetadata.now("system", "Initial setup");
+            TemporaryAssignment temporary = new TemporaryAssignment(user, adminRole, metadata_test, "2025-01-01", false);
+            System.out.println(temporary.summary());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
