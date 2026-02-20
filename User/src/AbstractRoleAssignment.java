@@ -65,7 +65,7 @@ public abstract class AbstractRoleAssignment implements RoleAssignment{
                 role().getName(),
                 user().username(),
                 metadata().assignedBy(),
-                metadata().date(),
+                metadata().assignedAt(),
                 metadata().reason() != null ? metadata().reason() : "",
                 status
         );

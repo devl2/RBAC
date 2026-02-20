@@ -1,5 +1,5 @@
 public record User(String username, String fullname, String email){
-    public static User validate(String username, String fullname, String email){
+    public static User create(String username, String fullname, String email){
         if(username == null || username.isBlank()){
             throw new IllegalArgumentException("Строка не может быть пустой или null");
         }

@@ -3,7 +3,7 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         try {
-            User user = User.validate("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
+            User user = User.create("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
             Permission permission = Permission.validate("READ", "users", "askldlkasld");
 
             Set<Permission> permissions = new HashSet<>();
@@ -38,21 +38,21 @@ public class Main {
         }
 
         try {
-            User bad_user1 = User.validate("vasya^-^", "Vasya", "vasya_qwerty@mail.ru");
+            User bad_user1 = User.create("vasya^-^", "Vasya", "vasya_qwerty@mail.ru");
             System.out.println(bad_user1.format());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
 
         try {
-            User bad_user2 = User.validate("vasya_qwerty", "  ", "vasya_qwerty@mail.ru");
+            User bad_user2 = User.create("vasya_qwerty", "  ", "vasya_qwerty@mail.ru");
             System.out.println(bad_user2.format());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
 
         try {
-            User bad_user3 = User.validate("vasya_qwerty", "Vasya", "@@@mail.ru");
+            User bad_user3 = User.create("vasya_qwerty", "Vasya", "@@@mail.ru");
             System.out.println(bad_user3.format());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -84,7 +84,7 @@ public class Main {
         }
 
         try {
-            User user = User.validate("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
+            User user = User.create("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
 
             Set<Permission> permissionss = new HashSet<>();
             permissionss.add(new Permission("delete", "users", "Can delete users"));
