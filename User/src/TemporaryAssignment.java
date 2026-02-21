@@ -52,7 +52,7 @@ public class TemporaryAssignment extends AbstractRoleAssignment {
                 role().getName(),
                 user().username(),
                 metadata().assignedBy(),
-                metadata().date(),
+                metadata().assignedAt(),
                 expiresAt,
                 metadata().reason() != null ? metadata().reason() : "",
                 status
