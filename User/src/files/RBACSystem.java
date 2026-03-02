@@ -28,8 +28,12 @@ public class RBACSystem {
     }
 
     public void initialize(){
+        userManager = new UserManager();
         roleManager = new RoleManager();
         assignmentManager = new AssignmentManager(userManager, roleManager);
+
+        User testAdmin = User.create("testAdmin", "Admin Adminovi4", "admin@pochta.ru");
+        userManager.add(testAdmin);
 
         Permission read = new Permission("READ", "document", "Read");
         Permission write = new Permission("WRITE", "document", "Write");
@@ -43,10 +47,7 @@ public class RBACSystem {
         roleManager.add(userRole);
         roleManager.add(managerRole);
 
-        User testAdmin = User.create("testAdmin", "Admin Adminovi4", "admin@pochta.ru");
-        userManager = new UserManager();
-
-        userManager.add(testAdmin);
+        assignmentManager = new AssignmentManager(userManager, roleManager);
 
         var assignment = new PermanentAssignment(testAdmin, adminRole, AssignmentMetadata.now("system", "test"));
         assignmentManager.add(assignment);
