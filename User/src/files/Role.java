@@ -39,7 +39,7 @@ public class Role{
         return false;
     }
 
-    public static Role validate(String name, String description, Set<Permission> permissions){
+    public static Role create(String name, String description, Set<Permission> permissions){
         return new Role(name, description, permissions);
     }
 
@@ -78,6 +78,18 @@ public class Role{
         }
 
         return result;
+    }
+
+    public void setName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Название роли не может быть пустым");
+        }
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        if (description == null) description = "";
+        this.description = description;
     }
 
     public String getName(){
