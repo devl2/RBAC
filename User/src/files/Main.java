@@ -4,13 +4,13 @@ public class Main {
     public static void main(String[] args) {
         try {
             User user = User.create("vasya_qwerty", "Vasya Qwerty", "vasya_qwerty@mail.ru");
-            Permission permission = Permission.validate("READ", "users", "askldlkasld");
+            Permission permission = Permission.create("READ", "users", "askldlkasld");
 
             Set<Permission> permissions = new HashSet<>();
             permissions.add(new Permission("delete", "users", "Can delete users"));
             permissions.add(new Permission("read", "users", "Can read users"));
 
-            Role adminRole = Role.validate("admin", "full system access", permissions);
+            Role adminRole = Role.create("admin", "full system access", permissions);
 
             AssignmentMetadata metadata_test = AssignmentMetadata.now("system", "Initial setup");
 
@@ -59,14 +59,14 @@ public class Main {
         }
 
         try {
-            Permission bad_user4 = Permission.validate("re ad", "reports", "asdklajkdsja");
+            Permission bad_user4 = Permission.create("re ad", "reports", "asdklajkdsja");
             System.out.println(bad_user4.format());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
 
         try {
-            Permission bad_user5 = Permission.validate("read", "reports", " ");
+            Permission bad_user5 = Permission.create("read", "reports", " ");
             System.out.println(bad_user5.format());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -77,7 +77,7 @@ public class Main {
             permissions.add(new Permission("delete", "users", "Can delete users"));
             permissions.add(new Permission("delete", "users", "Can delete users"));
             permissions.add(new Permission("read", "users", "Can read users"));
-            Role bad_user6 = Role.validate("admin", "full system access", permissions);
+            Role bad_user6 = Role.create("admin", "full system access", permissions);
             System.out.println(bad_user6.format());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -90,7 +90,7 @@ public class Main {
             permissionss.add(new Permission("delete", "users", "Can delete users"));
             permissionss.add(new Permission("read", "users", "Can read users"));
 
-            Role adminRole = Role.validate("admin", "full system access", permissionss);
+            Role adminRole = Role.create("admin", "full system access", permissionss);
             AssignmentMetadata metadata_test = AssignmentMetadata.now("system", "Initial setup");
             TemporaryAssignment temporary = new TemporaryAssignment(user, adminRole, metadata_test, "2025-01-01", false);
             System.out.println(temporary.summary());
