@@ -1,5 +1,3 @@
-import java.util.Locale;
-
 public record Permission(String name, String resource, String description) {
     public Permission (String name, String resource, String description){
         if (name.matches("^.*\\s.*$")){
@@ -17,7 +15,7 @@ public record Permission(String name, String resource, String description) {
         this.description = description;
     }
 
-    public static Permission validate(String name, String resource, String description){
+    public static Permission create(String name, String resource, String description){
         return new Permission(name, resource, description);
     }
 
