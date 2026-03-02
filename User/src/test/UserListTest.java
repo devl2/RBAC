@@ -24,6 +24,13 @@ public class UserListTest {
     }
 
     @Test
+    @DisplayName("Проверка регистрации команды")
+    void checkCommandRegistration() {
+        assertTrue(registry.commands.containsKey("user-list"),
+                "Команда user-list не зарегистрирована!");
+    }
+
+    @Test
     @DisplayName("Должен показать всех пользователей без параметров")
     void shouldShowAllUsersWithoutParams() {
         registry.parseAndExecute("user-list", new Scanner(""), system);
