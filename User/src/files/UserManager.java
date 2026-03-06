@@ -5,6 +5,10 @@ public class UserManager implements Repository <User>{
     private final Map<String, User> users = new HashMap<>();
     private AuditLog auditLog;
 
+    public UserManager(AuditLog auditLog) {
+        this.auditLog = auditLog;
+    }
+
     @Override
     public void add(User item) {
         if (item == null){
