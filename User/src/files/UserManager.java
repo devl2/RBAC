@@ -3,6 +3,7 @@ import java.util.*;
 public class UserManager implements Repository <User>{
 
     private final Map<String, User> users = new HashMap<>();
+    private AuditLog auditLog;
 
     @Override
     public void add(User item) {
@@ -21,13 +22,35 @@ public class UserManager implements Repository <User>{
         }
 
         users.put(item.getUsername(), item);
+
+        auditLog.log(
+                "CREATE_USER",
+                "system",
+                item.getUsername(),
+                "User created"
+        );
     }
 
     @Override
     public boolean remove(User item) {
-        if (item == null || item.getUsername() == null) return false;
 
-        return users.remove(item.getUsername()) != null;
+        if (item == null || item.getUsername() == null) {
+            return false;
+        }
+
+        User removed = users.remove(item.getUsername());
+
+        if (removed != null) {
+            auditLog.log(
+                    "DELETE_USER",
+                    "system",
+                    item.getUsername(),
+                    "User deleted"
+            );
+            return true;
+        }
+
+        return false;
     }
 
     @Override
