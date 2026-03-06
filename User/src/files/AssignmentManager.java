@@ -9,10 +9,12 @@ public class AssignmentManager implements Repository<RoleAssignment> {
     private final Map<String, RoleAssignment> assignments = new HashMap<>();
     private final UserManager userManager;
     private final RoleManager roleManager;
+    private AuditLog auditLog;
 
-    public AssignmentManager(UserManager userManager, RoleManager roleManager) {
+    public AssignmentManager(UserManager userManager, RoleManager roleManager, AuditLog auditLog) {
         this.userManager = userManager;
         this.roleManager = roleManager;
+        this.auditLog = auditLog;
     }
 
     @Override
@@ -31,12 +33,37 @@ public class AssignmentManager implements Repository<RoleAssignment> {
             throw new IllegalArgumentException("Назначение с ID '" + item.assignmentId() + "' уже существует");
 
         assignments.put(item.assignmentId(), item);
+
+        auditLog.log(
+                "ASSIGNMENT_ROLE",
+                "system",
+                item.assignmentId(),
+                "Role assignment"
+        );
     }
 
     @Override
     public boolean remove(RoleAssignment item) {
-        if (item == null || item.assignmentId() == null) return false;
-        return assignments.remove(item.assignmentId()) != null;
+
+        if (item == null || item.assignmentId() == null) {
+            return false;
+        }
+
+        RoleAssignment removed = assignments.remove(item.assignmentId());
+
+        if (removed != null) {
+
+            auditLog.log(
+                    "REVOKE_ROLE",
+                    "system",
+                    removed.assignmentId(),
+                    "Role revoked: "
+            );
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
