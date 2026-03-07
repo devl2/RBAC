@@ -1,3 +1,5 @@
+package bds;
+
 public class PermanentAssignment extends AbstractRoleAssignment {
 
     private boolean revoked;

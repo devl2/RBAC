@@ -1,3 +1,10 @@
+package commands;
+
+import bds.*;
+import managers.*;
+import util.*;
+import filters.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -107,7 +114,7 @@ public class CommandRegistry extends CommandParser {
                             if(assignment.isActive()){
                                 hasActiveRoles = true;
                                 Role role = assignment.role();
-                                System.out.println("Role: " + role.format());
+                                System.out.println("bds.Role: " + role.format());
                                 System.out.println("Permissions: ");
                                 for (Permission perm : role.getPermissions()){
                                     System.out.println(perm.format());
@@ -1005,6 +1012,40 @@ public class CommandRegistry extends CommandParser {
                 (scanner, system) -> {
                     AuditLog auditLog = system.getAuditLog();
                     auditLog.printLog();
+                });
+        registerCommand("report-users",
+                "вывести/сохранить отчёт по пользователям",
+                (scanner, system) -> {
+                    ReportGenerator reportGenerator = new ReportGenerator();
+
+                    String report = reportGenerator.generateUserReport(system.getUserManager(), system.getAssignmentManager());
+
+                    System.out.println(report);
+
+                    System.out.println("Хотите сохранить в файл? (да/нет");
+                    String answer = scanner.nextLine().trim().toLowerCase();
+
+                    if("да".equals(answer)){
+                        reportGenerator.exportToFile(report, "report-users.txt");
+                    }
+                });
+        registerCommand("report-roles",
+                "отчет по ролям",
+                (scanner, system) -> {
+                    ReportGenerator reportGenerator = new ReportGenerator();
+
+                    String report = reportGenerator.generateRoleReport(system.getRoleManager(), system.getAssignmentManager());
+
+                    System.out.println(report);
+                });
+        registerCommand("report-matrix",
+                "матрица прав",
+                (scanner, system) -> {
+                    ReportGenerator reportGenerator = new ReportGenerator();
+
+                    String report = reportGenerator.generatePermissionMatrix(system.getUserManager(), system.getAssignmentManager());
+
+                    System.out.println(report);
                 });
     }
 

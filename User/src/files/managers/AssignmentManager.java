@@ -1,8 +1,12 @@
+package managers;
+
+import bds.*;
+import filters.AssignmentFilter;
+import util.AuditLog;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AssignmentManager implements Repository<RoleAssignment> {
 
@@ -38,7 +42,7 @@ public class AssignmentManager implements Repository<RoleAssignment> {
                 "ASSIGNMENT_ROLE",
                 "system",
                 item.assignmentType(),
-                "Role assignment"
+                "bds.Role assignment"
         );
     }
 
@@ -57,7 +61,7 @@ public class AssignmentManager implements Repository<RoleAssignment> {
                     "REVOKE_ROLE",
                     "system",
                     removed.assignmentType(),
-                    "Role revoked: " + removed.assignmentType()
+                    "bds.Role revoked: " + removed.assignmentType()
             );
 
             return true;

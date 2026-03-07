@@ -1,3 +1,5 @@
+package managers;
+
 import java.util.*;
 
 public interface Repository <T> {

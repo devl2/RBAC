@@ -1,5 +1,8 @@
+package filters;
+
+import bds.RoleAssignment;
+
 import java.util.Comparator;
-import java.util.Set;
 
 public class AssignmentSorters {
     public Comparator<RoleAssignment> byUsername(){

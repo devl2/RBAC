@@ -1,3 +1,5 @@
+package bds;
+
 public record User(String username, String fullname, String email){
     public static User create(String username, String fullname, String email){
         if(username == null || username.isBlank()){

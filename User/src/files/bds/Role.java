@@ -1,3 +1,5 @@
+package bds;
+
 import java.util.*;
 
 public class Role{
@@ -64,12 +66,12 @@ public class Role{
 
     @Override
     public String toString(){
-        return String.format("Role{id='%s', name='%s', permissions=%d}",
+        return String.format("bds.Role{id='%s', name='%s', permissions=%d}",
                 id, name, permissions.size());
     }
 
     public String format(){
-        String result = String.format("Role: %s [ID: %s]\n " +
+        String result = String.format("bds.Role: %s [ID: %s]\n " +
                 "Description: %s \n " +
                 "Permissions (%d): \n", name, id, description, permissions.size());
 

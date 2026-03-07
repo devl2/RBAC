@@ -1,5 +1,11 @@
+package managers;
+
+import bds.Permission;
+import bds.Role;
+import filters.RoleFilter;
+import util.AuditLog;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RoleManager implements Repository<Role> {
 
@@ -32,7 +38,7 @@ public class RoleManager implements Repository<Role> {
                 "CREATE_ROLE",
                 "system",
                 item.getName(),
-                "Role created"
+                "bds.Role created"
         );
     }
 
@@ -47,7 +53,7 @@ public class RoleManager implements Repository<Role> {
                     "DELETE_ROLE",
                     "system",
                     removed.getName(),
-                    "Role deleted"
+                    "bds.Role deleted"
             );
             return true;
         }
@@ -176,7 +182,7 @@ public class RoleManager implements Repository<Role> {
 
     @Override
     public String toString() {
-        return "RoleManager{" +
+        return "Managers.RoleManager{" +
                 "roles=" + rolesById.values() +
                 '}';
     }

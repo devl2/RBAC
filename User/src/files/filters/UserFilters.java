@@ -1,3 +1,5 @@
+package filters;
+
 public class UserFilters {
     public UserFilter byUsername(String username){
         return user -> user.getUsername().equals(username);

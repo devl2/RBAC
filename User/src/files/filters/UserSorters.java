@@ -1,3 +1,7 @@
+package filters;
+
+import bds.User;
+
 import java.util.Comparator;
 
 public class UserSorters {

@@ -1,3 +1,7 @@
+package filters;
+
+import bds.Permission;
+
 public class RoleFilters {
     public RoleFilter byName(String name){
         return role -> role.getName().equals(name);

@@ -1,6 +1,8 @@
+package bds;
+
 import java.util.*;
 
-public abstract class AbstractRoleAssignment implements RoleAssignment{
+public abstract class AbstractRoleAssignment implements RoleAssignment {
     private final String assignmentId;
     private final User user;
     private final Role role;

@@ -1,3 +1,9 @@
+package filters;
+
+import bds.AssignmentMetadata;
+import bds.Role;
+import bds.User;
+
 import java.time.LocalDateTime;
 
 public class AssignmentFilters {

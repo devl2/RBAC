@@ -1,6 +1,12 @@
+package managers;
+
+import bds.User;
+import filters.UserFilter;
+import util.AuditLog;
+
 import java.util.*;
 
-public class UserManager implements Repository <User>{
+public class UserManager implements Repository<User> {
 
     private final Map<String, User> users = new HashMap<>();
     private AuditLog auditLog;
@@ -31,7 +37,7 @@ public class UserManager implements Repository <User>{
                 "CREATE_USER",
                 "system",
                 item.getUsername(),
-                "User created"
+                "bds.User created"
         );
     }
 
@@ -49,7 +55,7 @@ public class UserManager implements Repository <User>{
                     "DELETE_USER",
                     "system",
                     item.getUsername(),
-                    "User deleted"
+                    "bds.User deleted"
             );
             return true;
         }

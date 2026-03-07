@@ -1,3 +1,7 @@
+package filters;
+
+import bds.Role;
+
 @FunctionalInterface
 public interface RoleFilter {
     boolean test (Role role);

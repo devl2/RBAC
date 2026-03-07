@@ -1,3 +1,8 @@
+package filters;
+
+import bds.Permission;
+import bds.Role;
+
 import java.util.Comparator;
 import java.util.Set;
 

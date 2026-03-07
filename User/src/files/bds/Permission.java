@@ -1,3 +1,5 @@
+package bds;
+
 public record Permission(String name, String resource, String description) {
     public Permission (String name, String resource, String description){
         if (name.matches("^.*\\s.*$")){

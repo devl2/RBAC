@@ -1,3 +1,7 @@
+package filters;
+
+import bds.RoleAssignment;
+
 @FunctionalInterface
 public interface AssignmentFilter {
     boolean test(RoleAssignment assignment);
