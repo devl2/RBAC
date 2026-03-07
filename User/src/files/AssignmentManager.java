@@ -37,7 +37,7 @@ public class AssignmentManager implements Repository<RoleAssignment> {
         auditLog.log(
                 "ASSIGNMENT_ROLE",
                 "system",
-                item.assignmentId(),
+                item.assignmentType(),
                 "Role assignment"
         );
     }
@@ -56,8 +56,8 @@ public class AssignmentManager implements Repository<RoleAssignment> {
             auditLog.log(
                     "REVOKE_ROLE",
                     "system",
-                    removed.assignmentId(),
-                    "Role revoked: "
+                    removed.assignmentType(),
+                    "Role revoked: " + removed.assignmentType()
             );
 
             return true;
