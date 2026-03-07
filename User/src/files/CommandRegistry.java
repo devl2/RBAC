@@ -965,8 +965,7 @@ public class CommandRegistry extends CommandParser {
                 "help",
                 "справка по командам",
                 (scanner, system) -> {
-                    CommandParser help = null;
-                    help.printHelp();
+                    this.printHelp();
                 }
         );
         registerCommand(
@@ -1001,15 +1000,21 @@ public class CommandRegistry extends CommandParser {
                     System.exit(0);
                 }
         );
+        registerCommand("audit-log",
+                "просмотр логов",
+                (scanner, system) -> {
+                    AuditLog auditLog = system.getAuditLog();
+                    auditLog.printLog();
+                });
     }
 
     private void printTable(List<User> users) {
         System.out.printf("%-5s | %-10s | %-8s ",
                 "Username", "Fullname", "Email");
-        System.out.println("-------------------------------------------------");
+        System.out.println("\n-------------------------------------------------");
 
         for (User u : users) {
-            System.out.printf("%-5s | %-10s | %-8s ",
+            System.out.printf("%-5s | %-10s | %-8s \n",
                     u.getUsername(),
                     u.getFullname(),
                     u.getEmail());
