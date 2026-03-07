@@ -23,10 +23,10 @@ public class CommandParser {
 
     public void printHelp() {
         System.out.println("Доступные команды:");
-        System.out.printf("%-20s (%s%n)", "Команда", "Описание");
+        System.out.printf("%-20s (%s)%n", "Команда", "Описание");
         System.out.println("------------------------------------------------------------");
         commandDescriptions.forEach((cmd, desc) ->
-                System.out.printf("%-20s (%s%n)", cmd, desc));
+                System.out.printf("%-20s (%s)%n", cmd, desc));
     }
 
     public void parseAndExecute(String input, Scanner scanner, RBACSystem system) {
