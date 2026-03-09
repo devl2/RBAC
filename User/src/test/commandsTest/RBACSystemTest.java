@@ -1,20 +1,27 @@
+package commandsTest;
+
 import commands.RBACSystem;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import util.AuditLog;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RBACSystemTest {
 
     private RBACSystem system;
+    private AuditLog auditLog;
 
     @BeforeEach
     public void setUp() {
-        system = new RBACSystem(system.getAuditLog());
+        auditLog = new AuditLog();
+        system = new RBACSystem(auditLog);
         system.initialize();
     }
 
     @Test
+    @DisplayName("Инициализация менеджеров")
     public void testManagersInitialized() {
         assertNotNull(system.getUserManager(), "Managers.UserManager должен быть инициализирован");
         assertNotNull(system.getRoleManager(), "Managers.RoleManager должен быть инициализирован");
@@ -22,6 +29,7 @@ public class RBACSystemTest {
     }
 
     @Test
+    @DisplayName("Создание пользователя testAdmin")
     public void testAdminUserCreated() {
         assertTrue(system.getUserManager().exists("testAdmin"), "Должен быть создан пользователь testAdmin");
         assertEquals("Admin Adminovi4", system.getUserManager().findByUserName("testAdmin").get().getFullname());
@@ -29,6 +37,7 @@ public class RBACSystemTest {
     }
 
     @Test
+    @DisplayName("Создание ролей")
     public void testRolesCreated() {
         assertEquals(3, system.getRoleManager().count(), "Должно быть создано 3 роли");
 
@@ -38,6 +47,7 @@ public class RBACSystemTest {
     }
 
     @Test
+    @DisplayName("Назначение роли ADMIN пользователю testAdmin")
     public void testAdminAssignment() {
         var adminUser = system.getUserManager().findByUserName("testAdmin").get();
         var assignments = system.getAssignmentManager().findByUser(adminUser);
@@ -50,6 +60,7 @@ public class RBACSystemTest {
     }
 
     @Test
+    @DisplayName("Генерация статистики")
     public void testGenerateStatistics() {
         String stats = system.generateStatistics();
         assertTrue(stats.contains("Users: 1"), "Статистика должна содержать 1 пользователя");
@@ -58,6 +69,7 @@ public class RBACSystemTest {
     }
 
     @Test
+    @DisplayName("Проверка установки и получения текущего пользователя")
     public void testCurrentUserGetterSetter() {
         system.setCurrentUser("testAdmin");
         assertEquals("testAdmin", system.getCurrentUser());
