@@ -1,7 +1,8 @@
+package util;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 
 public class ValidationUtils {
     public static boolean isValidUsername(String username){
