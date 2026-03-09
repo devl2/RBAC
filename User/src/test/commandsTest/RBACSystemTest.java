@@ -1,6 +1,7 @@
+import commands.RBACSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RBACSystemTest {
@@ -9,15 +10,15 @@ public class RBACSystemTest {
 
     @BeforeEach
     public void setUp() {
-        system = new RBACSystem();
+        system = new RBACSystem(system.getAuditLog());
         system.initialize();
     }
 
     @Test
     public void testManagersInitialized() {
-        assertNotNull(system.getUserManager(), "UserManager должен быть инициализирован");
-        assertNotNull(system.getRoleManager(), "RoleManager должен быть инициализирован");
-        assertNotNull(system.getAssignmentManager(), "AssignmentManager должен быть инициализирован");
+        assertNotNull(system.getUserManager(), "Managers.UserManager должен быть инициализирован");
+        assertNotNull(system.getRoleManager(), "Managers.RoleManager должен быть инициализирован");
+        assertNotNull(system.getAssignmentManager(), "Managers.AssignmentManager должен быть инициализирован");
     }
 
     @Test

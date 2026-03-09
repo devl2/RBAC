@@ -1,4 +1,10 @@
+import managers.AssignmentManager;
+import managers.RoleManager;
+import managers.UserManager;
+import bds.*;
 import org.junit.jupiter.api.*;
+import util.AuditLog;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +16,7 @@ class AssignmentManagerTest {
     private UserManager userManager;
     private RoleManager roleManager;
     private AssignmentManager assignmentManager;
+    private AuditLog auditLog;
 
     private User vasya;
     private User vova;
@@ -20,9 +27,10 @@ class AssignmentManagerTest {
 
     @BeforeEach
     void setUp() {
-        userManager = new UserManager();
-        roleManager = new RoleManager();
-        assignmentManager = new AssignmentManager(userManager, roleManager);
+        auditLog = new AuditLog();
+        userManager = new UserManager(auditLog);
+        roleManager = new RoleManager(auditLog);
+        assignmentManager = new AssignmentManager(userManager, roleManager, auditLog);
 
         vasya = User.create("vasya123", "Vasya Pupkin", "vasya@email.com");
         vova = User.create("vova456", "Vova Sidorov", "vova@email.com");
@@ -31,7 +39,7 @@ class AssignmentManagerTest {
         Permission write = new Permission("WRITE", "document", "Write");
 
         adminRole = new Role("ADMIN", "Admin", Set.of(read, write));
-        userRole = new Role("USER", "User", Set.of(read));
+        userRole = new Role("USER", "bds.User", Set.of(read));
         managerRole = new Role("MANAGER", "Manager", Set.of());
 
         userManager.add(vasya);

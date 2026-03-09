@@ -1,3 +1,5 @@
+import commands.CommandRegistry;
+import commands.RBACSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +17,7 @@ public class UserListTest {
 
     @BeforeEach
     void setUp() {
-        system = new RBACSystem();
+        system = new RBACSystem(system.getAuditLog());
         registry = new CommandRegistry();
         system.initialize();
 

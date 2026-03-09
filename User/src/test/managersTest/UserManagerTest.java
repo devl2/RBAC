@@ -1,7 +1,11 @@
+import managers.UserManager;
+import bds.User;
+import filters.UserFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import util.AuditLog;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,7 +20,8 @@ class UserManagerTest {
 
     @BeforeEach
     void setUp() {
-        userManager = new UserManager();
+        AuditLog auditLog = new AuditLog();
+        userManager = new UserManager(auditLog);
         vasya = User.create("vasya123", "Vasya Pupkin", "vasya@email.com");
     }
 

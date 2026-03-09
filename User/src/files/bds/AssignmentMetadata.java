@@ -1,5 +1,8 @@
 package bds;
 
+import util.DateUtils;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,13 +25,28 @@ public record AssignmentMetadata(String assignedBy, String assignedAt, String ex
     }
 
     public String format() {
-        String expiresStr = expiresAt != null ? expiresAt : "Never";
+        String assignedAtFormatted = assignedAt != null
+                ? LocalDateTime.parse(assignedAt, ISO_FORMATTER)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                : "Unknown";
+
+        String expiresStr;
+        if (expiresAt != null) {
+            LocalDate expiryDate = LocalDate.parse(expiresAt, DateUtils.DATE_FORMAT);
+            expiresStr = DateUtils.formatRelativeTime(expiryDate.toString());
+        } else {
+            expiresStr = "Never";
+        }
+
         return String.format(
                 "Assignment Metadata:\n" +
-                        "  assigned By: %s\n" +
-                        "  assigned At: %s\n" +
-                        "  reason: %s",
-                assignedBy, assignedAt, expiresStr,
+                        "  Assigned By: %s\n" +
+                        "  Assigned At: %s\n" +
+                        "  Expires: %s\n" +
+                        "  Reason: %s",
+                assignedBy,
+                assignedAtFormatted,
+                expiresStr,
                 reason != null ? reason : "Not specified"
         );
     }

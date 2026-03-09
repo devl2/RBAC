@@ -1,3 +1,6 @@
+import commands.Command;
+import commands.CommandParser;
+import commands.RBACSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +19,7 @@ public class ParserTest {
     @BeforeEach
     void setUp() {
         parser = new CommandParser();
-        system = new RBACSystem();
+        system = new RBACSystem(system.getAuditLog());
     }
 
     @Test

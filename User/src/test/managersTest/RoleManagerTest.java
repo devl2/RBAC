@@ -1,7 +1,12 @@
+import managers.RoleManager;
+import bds.Permission;
+import bds.Role;
+import filters.RoleFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import util.AuditLog;
 
 import java.util.*;
 
@@ -17,13 +22,14 @@ class RoleManagerTest {
 
     @BeforeEach
     void setUp() {
-        roleManager = new RoleManager();
+        AuditLog auditLog = new AuditLog();
+        roleManager = new RoleManager(auditLog);
 
         readPerm = new Permission("READ", "document", "Can read");
         writePerm = new Permission("WRITE", "document", "Can write");
 
         adminRole = new Role("ADMIN", "Administrator role", new HashSet<>());
-        userRole = new Role("USER", "User role", new HashSet<>());
+        userRole = new Role("USER", "bds.User role", new HashSet<>());
     }
 
     @Nested
