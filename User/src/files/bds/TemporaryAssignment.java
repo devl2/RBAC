@@ -1,6 +1,9 @@
 package bds;
 
+import util.DateUtils;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -47,15 +50,23 @@ public class TemporaryAssignment extends AbstractRoleAssignment {
 
     @Override
     public String summary() {
+        String assignedAtFormatted = LocalDateTime.parse(metadata().assignedAt(), AssignmentMetadata.ISO_FORMATTER)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        String expiresFormatted = expiresAt != null
+                ? DateUtils.formatRelativeTime(expiresAt)
+                : "Never";
+
         String status = isActive() ? "ACTIVE" : "EXPIRED";
+
         return String.format("[%s] %s assigned to %s by %s at %s\n" +
                         "Expires at: %s\nReason: %s\nStatus: %s",
                 assignmentType(),
                 role().getName(),
                 user().username(),
                 metadata().assignedBy(),
-                metadata().assignedAt(),
-                expiresAt,
+                assignedAtFormatted,
+                expiresFormatted,
                 metadata().reason() != null ? metadata().reason() : "",
                 status
         );
