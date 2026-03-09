@@ -1,5 +1,7 @@
 package bds;
 
+import util.FormatUtils;
+
 import java.util.*;
 
 public class Role{
@@ -70,16 +72,20 @@ public class Role{
                 id, name, permissions.size());
     }
 
-    public String format(){
-        String result = String.format("bds.Role: %s [ID: %s]\n " +
-                "Description: %s \n " +
-                "Permissions (%d): \n", name, id, description, permissions.size());
+    public String format() {
+        String header = String.format(
+                "Role: %s [ID: %s]\nDescription: %s\nPermissions (%d):",
+                name, id, description, permissions.size()
+        );
 
-        for (Permission p : permissions){
-            result += " - " + p.format() + "\n";
+        List<String[]> rows = new ArrayList<>();
+        for (Permission p : permissions) {
+            rows.add(new String[]{p.format()});
         }
 
-        return result;
+        String table = FormatUtils.formatTable(new String[]{"Permission"}, rows);
+
+        return header + "\n" + table;
     }
 
     public void setName(String name) {
