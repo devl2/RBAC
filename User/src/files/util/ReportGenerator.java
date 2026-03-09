@@ -1,3 +1,9 @@
+package util;
+
+import bds.*;
+import managers.*;
+import filters.*;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -5,9 +11,7 @@ import java.util.Map;
 
 public class ReportGenerator {
 
-    public String generateUserReport(UserManager userManager,
-                                     AssignmentManager assignmentManager) {
-
+    public String generateUserReport(UserManager userManager, AssignmentManager assignmentManager) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("USER REPORT\n");
