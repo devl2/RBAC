@@ -14,7 +14,7 @@ import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class reportTest {
+class ReportTest {
     private AuditLog auditLog;
     private User vasya;
     private Role adminRole;
