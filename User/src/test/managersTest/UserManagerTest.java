@@ -1,3 +1,5 @@
+package managersTest;
+
 import managers.UserManager;
 import bds.User;
 import filters.UserFilter;

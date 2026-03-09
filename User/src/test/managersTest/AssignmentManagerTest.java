@@ -1,3 +1,5 @@
+package managersTest;
+
 import managers.AssignmentManager;
 import managers.RoleManager;
 import managers.UserManager;
@@ -60,6 +62,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("permanentAssignment: Добавление постоянного назначения роли пользователю")
     void addPermanentAssignment() {
         var assignment = new PermanentAssignment(vasya, adminRole, metadata());
         assignmentManager.add(assignment);
@@ -68,6 +71,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("permanentAssignment: Попытка добавить дубликат назначения должна выбросить исключение")
     void duplicateAssignmentShouldThrow() {
         var a1 = new PermanentAssignment(vasya, adminRole, metadata());
         var a2 = new PermanentAssignment(vasya, adminRole, metadata());
@@ -79,6 +83,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("findByUser: Поиск назначений по пользователю")
     void findAssignmentsByUser() {
         assignmentManager.add(new PermanentAssignment(vasya, adminRole, metadata()));
         assignmentManager.add(new PermanentAssignment(vova, userRole, metadata()));
@@ -90,6 +95,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("active & expired assignments: Разделение назначений на активные и истёкшие")
     void activeAndExpiredAssignments() {
         var active = new TemporaryAssignment(
                 vasya,
@@ -115,6 +121,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("userHasPermission: Проверка наличия у пользователя прав по назначенным ролям")
     void userHasPermission() {
         assignmentManager.add(new PermanentAssignment(vasya, adminRole, metadata()));
 
@@ -124,6 +131,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("revokeAssignment: Отзыв назначения роли у пользователя")
     void revokeAssignment() {
         var assignment = new PermanentAssignment(vasya, adminRole, metadata());
         assignmentManager.add(assignment);
@@ -135,6 +143,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("extendTemporaryAssignment: Продление временного назначения роли")
     void extendTemporaryAssignment() {
         var temp = new TemporaryAssignment(
                 vasya,
@@ -157,6 +166,7 @@ class AssignmentManagerTest {
     }
 
     @Test
+    @DisplayName("extendTemporaryAssignment: Попытка продлить постоянное назначение должна выбросить исключение")
     void extendPermanentShouldThrow() {
         var perm = new PermanentAssignment(vasya, adminRole, metadata());
         assignmentManager.add(perm);

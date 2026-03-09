@@ -1,3 +1,5 @@
+package managersTest;
+
 import managers.RoleManager;
 import bds.Permission;
 import bds.Role;
@@ -33,7 +35,7 @@ class RoleManagerTest {
     }
 
     @Nested
-    @DisplayName("Тесты добавления ролей")
+    @DisplayName("Добавления ролей")
     class AddTests {
 
         @Test
@@ -61,7 +63,7 @@ class RoleManagerTest {
     }
 
     @Nested
-    @DisplayName("Тесты управления разрешениями")
+    @DisplayName("Управления разрешениями")
     class PermissionTests {
 
         @BeforeEach
@@ -122,7 +124,7 @@ class RoleManagerTest {
     }
 
     @Nested
-    @DisplayName("Тесты удаления ролей")
+    @DisplayName("Удаления ролей")
     class RemoveTests {
 
         @BeforeEach
@@ -149,7 +151,7 @@ class RoleManagerTest {
     }
 
     @Nested
-    @DisplayName("Тесты поиска и фильтрации")
+    @DisplayName("Поиск и фильтрация")
     class FindTests {
 
         @BeforeEach
@@ -201,7 +203,7 @@ class RoleManagerTest {
     }
 
     @Nested
-    @DisplayName("Тесты вспомогательных методов")
+    @DisplayName("Вспомогательные методы")
     class HelperMethodsTests {
 
         @BeforeEach
