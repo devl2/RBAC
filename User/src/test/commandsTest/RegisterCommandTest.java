@@ -1,8 +1,11 @@
+package commandsTest;
+
 import commands.CommandRegistry;
 import commands.RBACSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import util.AuditLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -10,14 +13,16 @@ import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserListTest {
+public class RegisterCommandTest {
     private RBACSystem system;
     private ByteArrayOutputStream outputStream;
     private CommandRegistry registry;
+    private AuditLog auditLog;
 
     @BeforeEach
     void setUp() {
-        system = new RBACSystem(system.getAuditLog());
+        auditLog = new AuditLog();
+        system = new RBACSystem(auditLog);
         registry = new CommandRegistry();
         system.initialize();
 
