@@ -69,6 +69,11 @@ public class RBACSystem {
         int roleCount = roleManager.count();
         int assignmentCount = assignmentManager.count();
 
-        return "Users: %d, Roles: %d,Assignments: %d" .formatted(userCount, roleCount, assignmentCount);
+        String statsText = String.format(
+                "Users: %d\nRoles: %d\nAssignments: %d",
+                userCount, roleCount, assignmentCount
+        );
+
+        return FormatUtils.formatBox(statsText);
     }
 }
