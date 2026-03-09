@@ -1,8 +1,12 @@
+package commandsTest;
+
 import commands.Command;
 import commands.CommandParser;
 import commands.RBACSystem;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import util.AuditLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -15,14 +19,17 @@ public class ParserTest {
 
     private CommandParser parser;
     private RBACSystem system;
+    private AuditLog auditLog;
 
     @BeforeEach
     void setUp() {
+        auditLog = new AuditLog();
         parser = new CommandParser();
-        system = new RBACSystem(system.getAuditLog());
+        system = new RBACSystem(auditLog);
     }
 
     @Test
+    @DisplayName("registerCommand: Регистрация команды и её описания")
     void shouldRegisterCommand() {
         Command dummy = (scanner, sys) -> {};
 
@@ -33,6 +40,7 @@ public class ParserTest {
     }
 
     @Test
+    @DisplayName("executeCommand: Выполнение существующей команды")
     void shouldExecuteExistingCommand() {
         AtomicBoolean executed = new AtomicBoolean(false);
 
@@ -46,6 +54,7 @@ public class ParserTest {
     }
 
     @Test
+    @DisplayName("executeCommand: Обработка неизвестной команды без исключений")
     void shouldHandleUnknownCommandWithoutException() {
         assertDoesNotThrow(() ->
                 parser.executeCommand("unknown", new Scanner(""), system)
@@ -53,6 +62,7 @@ public class ParserTest {
     }
 
     @Test
+    @DisplayName("parseAndExecute: Корректная передача аргументов в команду")
     void shouldPassArgumentsCorrectly() {
         AtomicBoolean argumentCorrect = new AtomicBoolean(false);
 
@@ -71,6 +81,7 @@ public class ParserTest {
     }
 
     @Test
+    @DisplayName("parseAndExecute: Игнорирование пустого или null ввода")
     void shouldIgnoreBlankInput() {
         assertDoesNotThrow(() ->
                 parser.parseAndExecute("   ", new Scanner(""), system)
@@ -82,6 +93,7 @@ public class ParserTest {
     }
 
     @Test
+    @DisplayName("printHelp: Вывод справки со всеми зарегистрированными командами")
     void shouldPrintHelpWithRegisteredCommands() {
         parser.registerCommand("cmd1", "desc1", (s, sys) -> {});
         parser.registerCommand("cmd2", "desc2", (s, sys) -> {});
