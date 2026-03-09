@@ -1,8 +1,8 @@
 package commands;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import util.FormatUtils;
+
+import java.util.*;
 
 public class CommandParser {
     public Map<String, Command> commands = new HashMap<>();
@@ -25,10 +25,14 @@ public class CommandParser {
 
     public void printHelp() {
         System.out.println("Доступные команды:");
-        System.out.printf("%-20s (%s)%n", "Команда", "Описание");
-        System.out.println("------------------------------------------------------------");
-        commandDescriptions.forEach((cmd, desc) ->
-                System.out.printf("%-20s (%s)%n", cmd, desc));
+
+        List<String[]> rows = new ArrayList<>();
+        for (Map.Entry<String, String> entry : commandDescriptions.entrySet()) {
+            rows.add(new String[]{entry.getKey(), entry.getValue()});
+        }
+
+        String table = FormatUtils.formatTable(new String[]{"Команда", "Описание"}, rows);
+        System.out.println(table);
     }
 
     public void parseAndExecute(String input, Scanner scanner, RBACSystem system) {
