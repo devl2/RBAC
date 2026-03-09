@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class сonsoleTest {
+public class ConsoleTest {
 
     private Scanner scanner(String input) {
         return new Scanner(new ByteArrayInputStream(input.getBytes()));
