@@ -3,6 +3,7 @@ package managers;
 import bds.*;
 import filters.AssignmentFilter;
 import util.AuditLog;
+import util.DateUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -136,7 +137,6 @@ public class AssignmentManager implements Repository<RoleAssignment> {
     }
 
     public List<RoleAssignment> getActiveAssignments() {
-        LocalDate today = LocalDate.now();
         List<RoleAssignment> result = new ArrayList<>();
 
         for (RoleAssignment assignment : assignments.values()) {
@@ -148,7 +148,6 @@ public class AssignmentManager implements Repository<RoleAssignment> {
     }
 
     public List<RoleAssignment> getExpiredAssignments() {
-        LocalDate today = LocalDate.now();
         List<RoleAssignment> result = new ArrayList<>();
 
         for (RoleAssignment assignment : assignments.values()) {
@@ -162,7 +161,6 @@ public class AssignmentManager implements Repository<RoleAssignment> {
     public boolean userHasRole(User user, Role role) {
         if (user == null || role == null) return false;
 
-        LocalDate today = LocalDate.now();
         for (RoleAssignment assignment : assignments.values()) {
             if (user.getUsername().equals(assignment.user().getUsername()) &&
                     role.getName().equals(assignment.role().getName()) &&
@@ -193,7 +191,6 @@ public class AssignmentManager implements Repository<RoleAssignment> {
         if (user == null) return Collections.emptySet();
 
         Set<Permission> permissions = new HashSet<>();
-        LocalDate today = LocalDate.now();
 
         for (RoleAssignment assignment : assignments.values()) {
             if (user.getUsername().equals(assignment.user().getUsername()) &&
@@ -227,16 +224,24 @@ public class AssignmentManager implements Repository<RoleAssignment> {
             throw new IllegalArgumentException("Назначение с ID '" + assignmentId + "' не найдено");
         }
 
-        if (!(assignment instanceof TemporaryAssignment)) {
+        if (!(assignment instanceof TemporaryAssignment tempAssignment)) {
             throw new IllegalArgumentException("Можно продлить только временное назначение");
         }
 
-        TemporaryAssignment tempAssignment = (TemporaryAssignment) assignment;
-
+        LocalDate newDate;
         try {
-            LocalDate.parse(newExpirationDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            newDate = LocalDate.parse(newExpirationDate, DateUtils.DATE_FORMAT);
         } catch (Exception e) {
             throw new IllegalArgumentException("Неверный формат даты. Используйте ГГГГ-ММ-ДД");
+        }
+
+        if (tempAssignment.getExpiresAt() != null) {
+            LocalDate currentExpiry = LocalDate.parse(tempAssignment.getExpiresAt(), DateUtils.DATE_FORMAT);
+            if (!newDate.isAfter(currentExpiry)) {
+                throw new IllegalArgumentException(
+                        "Новая дата истечения должна быть позже текущей даты " + currentExpiry
+                );
+            }
         }
 
         tempAssignment.extend(newExpirationDate);
