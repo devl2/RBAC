@@ -6,15 +6,19 @@ import util.AuditLog;
 import util.DateUtils;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class AssignmentManager implements Repository<RoleAssignment> {
 
-    private final Map<String, RoleAssignment> assignments = new HashMap<>();
+    private final ConcurrentMap<String, RoleAssignment> assignments = new ConcurrentHashMap<>();
     private final UserManager userManager;
     private final RoleManager roleManager;
-    private AuditLog auditLog;
+    private final AuditLog auditLog;
+
+    private final Object lock = new Object();
 
     public AssignmentManager(UserManager userManager, RoleManager roleManager, AuditLog auditLog) {
         this.userManager = userManager;
@@ -26,18 +30,20 @@ public class AssignmentManager implements Repository<RoleAssignment> {
     public void add(RoleAssignment item) {
         if (item == null) throw new IllegalArgumentException("Назначение не может быть null");
 
-        if (userManager.findByUserName(item.user().username()).isEmpty())
-            throw new IllegalArgumentException("Пользователь не найден: " + item.user().username());
-        if (roleManager.findByName(item.role().getName()).isEmpty())
-            throw new IllegalArgumentException("Роль не найдена: " + item.role().getName());
+        synchronized (lock) {
+            if (userManager.findByUserName(item.user().username()).isEmpty())
+                throw new IllegalArgumentException("Пользователь не найден: " + item.user().username());
+            if (roleManager.findByName(item.role().getName()).isEmpty())
+                throw new IllegalArgumentException("Роль не найдена: " + item.role().getName());
 
-        if (isRoleAssignedToUser(item.user(), item.role()))
-            throw new IllegalArgumentException("Роль '" + item.role().getName() + "' уже назначена пользователю " + item.user().username());
+            if (isRoleAssignedToUser(item.user(), item.role()))
+                throw new IllegalArgumentException("Роль '" + item.role().getName() + "' уже назначена пользователю " + item.user().username());
 
-        if (assignments.containsKey(item.assignmentId()))
-            throw new IllegalArgumentException("Назначение с ID '" + item.assignmentId() + "' уже существует");
+            if (assignments.containsKey(item.assignmentId()))
+                throw new IllegalArgumentException("Назначение с ID '" + item.assignmentId() + "' уже существует");
 
-        assignments.put(item.assignmentId(), item);
+            assignments.put(item.assignmentId(), item);
+        }
 
         auditLog.log(
                 "ASSIGNMENT_ROLE",
@@ -54,10 +60,13 @@ public class AssignmentManager implements Repository<RoleAssignment> {
             return false;
         }
 
-        RoleAssignment removed = assignments.remove(item.assignmentId());
+        RoleAssignment removed;
+
+        synchronized (lock){
+            removed = assignments.remove(item.assignmentId());
+        }
 
         if (removed != null) {
-
             auditLog.log(
                     "REVOKE_ROLE",
                     "system",
@@ -208,9 +217,11 @@ public class AssignmentManager implements Repository<RoleAssignment> {
             throw new IllegalArgumentException("ID назначения не может быть пустым");
         }
 
-        RoleAssignment removed = assignments.remove(assignmentId);
-        if (removed == null) {
-            throw new IllegalArgumentException("Назначение с ID '" + assignmentId + "' не найдено");
+        synchronized (lock) {
+            RoleAssignment removed = assignments.remove(assignmentId);
+            if (removed == null) {
+                throw new IllegalArgumentException("Назначение с ID '" + assignmentId + "' не найдено");
+            }
         }
     }
 
@@ -219,34 +230,36 @@ public class AssignmentManager implements Repository<RoleAssignment> {
             throw new IllegalArgumentException("ID назначения не может быть пустым");
         }
 
-        RoleAssignment assignment = assignments.get(assignmentId);
-        if (assignment == null) {
-            throw new IllegalArgumentException("Назначение с ID '" + assignmentId + "' не найдено");
-        }
-
-        if (!(assignment instanceof TemporaryAssignment tempAssignment)) {
-            throw new IllegalArgumentException("Можно продлить только временное назначение");
-        }
-
-        LocalDate newDate;
-        try {
-            newDate = LocalDate.parse(newExpirationDate, DateUtils.DATE_FORMAT);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Неверный формат даты. Используйте ГГГГ-ММ-ДД");
-        }
-
-        if (tempAssignment.getExpiresAt() != null) {
-            LocalDate currentExpiry = LocalDate.parse(tempAssignment.getExpiresAt(), DateUtils.DATE_FORMAT);
-            if (!newDate.isAfter(currentExpiry)) {
-                throw new IllegalArgumentException(
-                        "Новая дата истечения должна быть позже текущей даты " + currentExpiry
-                );
+        synchronized (lock){
+            RoleAssignment assignment = assignments.get(assignmentId);
+            if (assignment == null) {
+                throw new IllegalArgumentException("Назначение с ID '" + assignmentId + "' не найдено");
             }
+
+            if (!(assignment instanceof TemporaryAssignment tempAssignment)) {
+                throw new IllegalArgumentException("Можно продлить только временное назначение");
+            }
+
+            LocalDate newDate;
+            try {
+                newDate = LocalDate.parse(newExpirationDate, DateUtils.DATE_FORMAT);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Неверный формат даты. Используйте ГГГГ-ММ-ДД");
+            }
+
+            if (tempAssignment.getExpiresAt() != null) {
+                LocalDate currentExpiry = LocalDate.parse(tempAssignment.getExpiresAt(), DateUtils.DATE_FORMAT);
+                if (!newDate.isAfter(currentExpiry)) {
+                    throw new IllegalArgumentException(
+                            "Новая дата истечения должна быть позже текущей даты " + currentExpiry
+                    );
+                }
+            }
+
+            tempAssignment.extend(newExpirationDate);
+
+            assignments.put(assignmentId, tempAssignment);
         }
-
-        tempAssignment.extend(newExpirationDate);
-
-        assignments.put(assignmentId, tempAssignment);
     }
 
 
@@ -270,7 +283,7 @@ public class AssignmentManager implements Repository<RoleAssignment> {
         for (RoleAssignment assignment : assignments.values()) {
             if (active && assignment.isActive()) {
                 result.add(assignment);
-            } else if (!active && assignment.isActive()) {
+            } else if (!active && !assignment.isActive()) {
                 result.add(assignment);
             }
         }
@@ -285,7 +298,7 @@ public class AssignmentManager implements Repository<RoleAssignment> {
                 User user = assignment.user();
                 Role role = assignment.role();
 
-                userRoles.computeIfAbsent(user, k -> new ArrayList<>()).add(role);
+                userRoles.computeIfAbsent(user, k -> new ArrayList<>()).add(role); //??
             }
         }
         return userRoles;

@@ -6,10 +6,15 @@ import util.AuditLog;
 
 import java.util.*;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 public class UserManager implements Repository<User> {
 
-    private final Map<String, User> users = new HashMap<>();
-    private AuditLog auditLog;
+    private final ConcurrentMap<String, User> users = new ConcurrentHashMap<>();
+    private final AuditLog auditLog;
+
+    private final Object lock = new Object();
 
     public UserManager(AuditLog auditLog) {
         this.auditLog = auditLog;
@@ -20,18 +25,20 @@ public class UserManager implements Repository<User> {
         if (item == null){
             throw new IllegalArgumentException("Пользователь не может быть null");
         }
-        if(users.containsKey(item.getUsername())){
-            throw new IllegalArgumentException("Пользователь с username " + item.getUsername() + "уже существует");
-        }
-
-        if (item.getEmail() != null && !item.getEmail().isBlank()) {
-            if (findByEmail(item.getEmail()).isPresent()) {
-                throw new IllegalArgumentException("Пользователь с email '" +
-                        item.getEmail() + "' уже существует");
+        synchronized (lock){
+            if (users.containsKey(item.getUsername())) {
+                throw new IllegalArgumentException("Пользователь с username " + item.getUsername() + "уже существует");
             }
-        }
 
-        users.put(item.getUsername(), item);
+            if (item.getEmail() != null && !item.getEmail().isBlank()) {
+                if (findByEmail(item.getEmail()).isPresent()) {
+                    throw new IllegalArgumentException("Пользователь с email '" +
+                            item.getEmail() + "' уже существует");
+                }
+            }
+
+            users.put(item.getUsername(), item);
+        }
 
         auditLog.log(
                 "CREATE_USER",
@@ -48,7 +55,11 @@ public class UserManager implements Repository<User> {
             return false;
         }
 
-        User removed = users.remove(item.getUsername());
+        User removed;
+
+        synchronized (lock){
+            removed = users.remove(item.getUsername());
+        }
 
         if (removed != null) {
             auditLog.log(
@@ -82,7 +93,9 @@ public class UserManager implements Repository<User> {
 
     @Override
     public void clear() {
-        users.clear();
+        synchronized (lock){
+            users.clear();
+        }
     }
 
     public Optional<User> findByUserName(String username){
@@ -133,20 +146,22 @@ public class UserManager implements Repository<User> {
     }
 
     public void update(String username, String newFullName, String newEmail) {
-        User existing = users.get(username);
+        synchronized (lock){
+            User existing = users.get(username);
 
-        if (existing == null) {
-            throw new IllegalArgumentException("Пользователь не найден: " + username);
+            if (existing == null) {
+                throw new IllegalArgumentException("Пользователь не найден: " + username);
+            }
+
+            String fullName = newFullName != null && !newFullName.isBlank() ? newFullName : existing.getFullname();
+            String email = newEmail != null && !newEmail.isBlank() ? newEmail : existing.getEmail();
+
+            if (!existing.getEmail().equals(email) && findByEmail(email).isPresent()) {
+                throw new IllegalArgumentException("Email уже используется: " + email);
+            }
+
+            users.put(username, User.create(username, fullName, email));
         }
-
-        String fullName = newFullName != null && !newFullName.isBlank() ? newFullName : existing.getFullname();
-        String email = newEmail != null && !newEmail.isBlank() ? newEmail : existing.getEmail();
-
-        if (!existing.getEmail().equals(email) && findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("Email уже используется: " + email);
-        }
-
-        users.put(username, User.create(username, fullName, email));
     }
 
     @Override
