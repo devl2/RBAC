@@ -2,89 +2,77 @@ package util;
 
 import bds.*;
 import managers.*;
-import filters.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ReportGenerator {
 
     public String generateUserReport(UserManager userManager, AssignmentManager assignmentManager) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("USER REPORT\n");
 
         Map<User, List<Role>> userRolesMap = assignmentManager.getUserRolesMap();
 
-        for (User user : userManager.findAll()) {
+        String result = userManager.findAll()
+                .parallelStream()
+                .map(user -> {
+                    String roles = userRolesMap.getOrDefault(user, List.of())
+                            .stream()
+                            .map(role -> "   - " + role.getName())
+                            .collect(Collectors.joining("\n"));
 
-            sb.append(String.format("User: %s\n", user.getUsername()));
+                    if (roles.isEmpty()) {
+                        roles = "  Roles: none";
+                    } else {
+                        roles = "  Roles:\n" + roles;
+                    }
 
-            List<Role> roles = userRolesMap.get(user);
+                    return String.format("User: %s\n%s\n", user.getUsername(), roles);
+                })
+                .collect(Collectors.joining("\n"));
 
-            if (roles == null || roles.isEmpty()) {
-                sb.append("  Roles: none\n");
-            } else {
-                sb.append("  Roles:\n");
-                for (Role role : roles) {
-                    sb.append(String.format("   - %s\n", role.getName()));
-                }
-            }
-
-            sb.append("\n");
-        }
-
-        return sb.toString();
+        return "USER REPORT\n" + result;
     }
 
 
     public String generateRoleReport(RoleManager roleManager, AssignmentManager assignmentManager) {
-        StringBuilder sb = new StringBuilder();
 
-        sb.append("ROLE REPORT \n");
+        String result = roleManager.findAll()
+                .parallelStream()
+                .map(role -> {
+                    int count = assignmentManager.findByRole(role).size();
+                    return String.format("Role: %-20s Users: %d", role.getName(), count);
+                })
+                .collect(Collectors.joining("\n"));
 
-        for (Role role : roleManager.findAll()) {
-
-            int count = assignmentManager.findByRole(role).size();
-
-            sb.append(String.format("Role: %-20s Users: %d\n", role.getName(), count));
-        }
-
-        return sb.toString();
+        return "ROLE REPORT\n" + result;
     }
 
 
     public String generatePermissionMatrix(UserManager userManager, AssignmentManager assignmentManager) {
 
-        StringBuilder sb = new StringBuilder();
+        String result = userManager.findAll()
+                .parallelStream()
+                .map(user -> {
+                    List<RoleAssignment> roles = assignmentManager.findByUser(user);
 
-        sb.append("PERMISSION MATRIX\n");
+                    String permissions = roles.isEmpty()
+                            ? "No roles"
+                            : roles.stream()
+                            .map(ra -> ra.role().getPermissions().toString())
+                            .collect(Collectors.joining(" "));
 
-        for (User user : userManager.findAll()) {
+                    return String.format("User: %-15s | %s", user.getUsername(), permissions);
+                })
+                .collect(Collectors.joining("\n"));
 
-            sb.append(String.format("User: %-15s | ", user.getUsername()));
-
-            List<RoleAssignment> roles = assignmentManager.findByUser(user);
-
-            if (roles.isEmpty()) {
-                sb.append("No roles");
-            } else {
-                for (RoleAssignment ra : roles) {
-                    sb.append(ra.role().getPermissions()).append(" ");
-                }
-            }
-
-            sb.append("\n");
-        }
-
-        return sb.toString();
+        return "PERMISSION MATRIX\n" + result;
     }
 
 
     public void exportToFile(String report, String filename) {
-
         try (FileWriter writer = new FileWriter(filename)) {
             writer.write(report);
             System.out.println("Report saved to " + filename);
