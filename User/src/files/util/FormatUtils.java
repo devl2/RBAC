@@ -56,7 +56,7 @@ public class FormatUtils {
         int length = text.length();
         StringBuilder sb = new StringBuilder();
         sb.append("+").append("-".repeat(length + 2)).append("+\n");
-        sb.append("| ").append(text).append(" |\n");
+        sb.append(text).append("\n");
         sb.append("+").append("-".repeat(length + 2)).append("+");
         return sb.toString();
     }
