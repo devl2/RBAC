@@ -1,3 +1,6 @@
+import bds.Permission;
+import bds.Role;
+import bds.User;
 import managers.AssignmentManager;
 import managers.RoleManager;
 import managers.UserManager;
@@ -7,6 +10,7 @@ import commands.CommandRegistry;
 import commands.RBACSystem;
 import util.AuditLog;
 import util.ConsoleUtils;
+import util.ReportGenerator;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -23,12 +27,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        UserManager userManager;
-        RoleManager roleManager;
-        AssignmentManager assignmentManager;
         AuditLog auditLog;
         ConsoleUtils consoleUtils;
-        String message = "test";
+        ReportGenerator reportGenerator = new ReportGenerator();
         Scanner scanner = new Scanner(System.in);
         int min = 0;
         int max = 5;
@@ -40,16 +41,18 @@ public class Main {
         auditLog = new AuditLog();
         parser = new CommandParser();
         system = new RBACSystem(auditLog);
-        userManager = new UserManager(auditLog);
-        roleManager = new RoleManager(auditLog);
-        assignmentManager = new AssignmentManager(userManager, roleManager, auditLog);
 
         system.initialize();
 
-        ConsoleUtils.promptString(scanner, message, false);
-        ConsoleUtils.promptInt(scanner, message, min, max);
+//        ConsoleUtils.promptString(scanner, message, false);
+//        ConsoleUtils.promptInt(scanner, message, min, max);
 
-        //registry.executeCommand("help", new Scanner(""), system);
+        System.out.println(reportGenerator.generateUserReport(system.getUserManager(), system.getAssignmentManager()));
+        System.out.println(reportGenerator.generateRoleReport(system.getRoleManager(), system.getAssignmentManager()));
+
+        System.out.println(system.generateStatistics());
+
+        //registry.executeCommand("user-create", new Scanner(""), system);
 
     }
 
