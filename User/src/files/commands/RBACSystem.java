@@ -3,13 +3,16 @@ package commands;
 import bds.*;
 import managers.*;
 import util.*;
-import filters.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class RBACSystem {
     private UserManager userManager;
@@ -59,14 +62,16 @@ public class RBACSystem {
         assignmentManager = new AssignmentManager(userManager, roleManager, auditLog);
 
         User testAdmin = User.create("testAdmin", "Admin Adminovi4", "admin@pochta.ru");
+        User tempUser = User.create("tempUser", "User User", "user@pochta.ru");
         userManager.add(testAdmin);
+        userManager.add(tempUser);
 
         Permission read = new Permission("READ", "document", "Read");
         Permission write = new Permission("WRITE", "document", "Write");
         Permission delete = new Permission("DELETE", "document", "Delete");
 
         Role adminRole = new Role("ADMIN", "Admin", Set.of(read, write, delete));
-        Role userRole = new Role("USER", "bds.User", Set.of(read));
+        Role userRole = new Role("USER", "User", Set.of(read));
         Role managerRole = new Role("MANAGER", "Manager", Set.of(read, write));
 
         roleManager.add(adminRole);
@@ -76,7 +81,9 @@ public class RBACSystem {
         assignmentManager = new AssignmentManager(userManager, roleManager, auditLog);
 
         var assignment = new PermanentAssignment(testAdmin, adminRole, AssignmentMetadata.now("system", "test"));
+        var tempAssignment = new TemporaryAssignment(tempUser, userRole, AssignmentMetadata.now("system", "test"), "2026-02-20", false);
         assignmentManager.add(assignment);
+        assignmentManager.add(tempAssignment);
     }
 
     public String generateStatistics() {
@@ -125,5 +132,34 @@ public class RBACSystem {
                 writer.write("\n");
             }
         }
+    }
+
+    public ScheduledExecutorService scheduleTasks(int N){
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        scheduler.scheduleAtFixedRate(() -> {
+            List<TemporaryAssignment> temporaryAssignments = new ArrayList<>();
+
+            for (RoleAssignment ra: getAssignmentManager().findAll()){
+                if(ra instanceof TemporaryAssignment temp)
+                    temporaryAssignments.add(temp);
+            }
+
+            int expiredCount = 0;
+
+            for (TemporaryAssignment ta : temporaryAssignments){
+                if(ta.isExpired()){
+                    synchronized (ta){
+                        if(ta.isActive())
+                            expiredCount++;
+                    }
+                }
+            }
+
+            System.out.println("expired:" + expiredCount + "\ntemp assignments: " + temporaryAssignments.size());
+
+        }, 0, N, TimeUnit.SECONDS);
+
+        return scheduler;
     }
 }
