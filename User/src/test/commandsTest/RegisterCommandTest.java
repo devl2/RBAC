@@ -10,6 +10,7 @@ import util.AuditLog;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,5 +93,42 @@ public class RegisterCommandTest {
 
         String output = outputStream.toString();
         assertTrue(output.contains("testAdmin"));
+    }
+
+    @Test
+    void checkReportAsync() {
+
+        registry.parseAndExecute("report-users-async", new Scanner(""), system);
+
+        system.getExecutorService().shutdown();
+
+        try {
+            system.getExecutorService().awaitTermination(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            fail(e);
+        }
+
+        String output = outputStream.toString();
+
+        assertTrue(output.contains("USER REPORT"));
+        assertTrue(output.contains("testAdmin"));
+        assertTrue(output.contains("ADMIN"));
+    }
+
+    @Test
+    void checkSaveAsync(){
+        registry.parseAndExecute("save-async", new Scanner(""), system);
+
+        system.getExecutorService().shutdown();
+
+        try {
+            system.getExecutorService().awaitTermination(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            fail(e);
+        }
+
+        String output = outputStream.toString().trim();
+
+        assertEquals("Данные сохранены", output);
     }
 }
