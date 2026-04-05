@@ -21,8 +21,9 @@ public class AuditTest {
 
     @Test
     @DisplayName("getAll: Проверка добавления пользователя в логи")
-    void log_add() {
+    void log_add() throws InterruptedException {
         auditLog.log("CREATE_USER", "admin", "user1", "created user");
+        auditLog.flush();
 
         List<AuditLog.AuditEntry> entries = auditLog.getAll();
 
@@ -33,10 +34,11 @@ public class AuditTest {
 
     @Test
     @DisplayName("getByPerformer: Фильтрация по исполнителю")
-    void checkFilter() {
+    void checkFilter() throws InterruptedException {
         auditLog.log("CREATE_USER", "admin", "u1", "details");
         auditLog.log("DELETE_USER", "admin", "u2", "details");
         auditLog.log("CREATE_ROLE", "manager", "role1", "details");
+        auditLog.flush();
 
         List<AuditLog.AuditEntry> result = auditLog.getByPerformer("admin");
 
@@ -45,8 +47,9 @@ public class AuditTest {
 
     @Test
     @DisplayName("getByPerformer: Проверка чувствительности к регистрам")
-    void ignoreCase() {
+    void ignoreCase() throws InterruptedException {
         auditLog.log("ACTION", "Admin", "t", "d");
+        auditLog.flush();
 
         List<AuditLog.AuditEntry> result = auditLog.getByPerformer("admin");
 
@@ -55,10 +58,11 @@ public class AuditTest {
 
     @Test
     @DisplayName("getByAction: Фильтрация по действию")
-    void filterActionCorrectly() {
+    void filterActionCorrectly() throws InterruptedException {
         auditLog.log("CREATE_USER", "admin", "u1", "d");
         auditLog.log("DELETE_USER", "admin", "u2", "d");
         auditLog.log("CREATE_USER", "manager", "u3", "d");
+        auditLog.flush();
 
         List<AuditLog.AuditEntry> result = auditLog.getByAction("CREATE_USER");
 
@@ -67,8 +71,9 @@ public class AuditTest {
 
     @Test
     @DisplayName("printLog: Проверка вывода логов")
-    void printLog() {
+    void printLog() throws InterruptedException {
         auditLog.log("CREATE_USER", "admin", "user1", "created");
+        auditLog.flush();
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         System.setOut(new PrintStream(output));
@@ -90,7 +95,7 @@ public class AuditTest {
 
         auditLog.printLog();
 
-        assertTrue(output.toString().contains("Audit log is empty"));
+        assertTrue(output.toString().contains("Audit log пуст"));
     }
 
     @Test
