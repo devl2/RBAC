@@ -1,3 +1,5 @@
+package commandsTest;
+
 import bds.*;
 import commands.RBACSystem;
 import org.junit.jupiter.api.DisplayName;
@@ -70,7 +72,7 @@ public class loadTest {
 
         for (int t = 0; t < THREADS; t++) {
             for (int u = 0; u < THREADS; u++) {
-                String name = "user_" + t + "_" + u;
+                String name = "user" + t + "_" + u;
 
                 if (system.getUserManager().findByUserName(name).isEmpty()) {
                     System.out.println("Missing user: " + name);
