@@ -5,7 +5,11 @@ import managers.*;
 import util.*;
 import filters.*;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RBACSystem {
     private UserManager userManager;
@@ -13,12 +17,19 @@ public class RBACSystem {
     private AssignmentManager assignmentManager;
     private String currentUser;
     private AuditLog auditLog;
+    private ExecutorService executorService;
+
+    private int poolSize;
 
     public UserManager getUserManager(){
         return userManager;
     }
 
-    public RBACSystem(AuditLog auditLog) {this.auditLog = auditLog;}
+    public RBACSystem(AuditLog auditLog) {
+        this.auditLog = auditLog;
+        this.poolSize = 4;
+        this.executorService = Executors.newFixedThreadPool(poolSize);
+    }
 
     public RoleManager getRoleManager(){
         return roleManager;
@@ -29,6 +40,10 @@ public class RBACSystem {
     }
 
     public AuditLog getAuditLog(){return auditLog;}
+
+    public ExecutorService getExecutorService() {return executorService;}
+
+    public int getPoolSize(){return poolSize;}
 
     public void setCurrentUser(String username) {
         this.currentUser = username;
@@ -75,5 +90,40 @@ public class RBACSystem {
         );
 
         return FormatUtils.formatBox(statsText);
+    }
+
+    public void saveToFile() throws IOException {
+
+        try (FileWriter writer = new FileWriter("data.txt")) {
+
+            writer.write("USERS\n");
+            for (User u : userManager.findAll()) {
+                writer.write(
+                        u.getUsername() + "|" +
+                                u.getFullname() + "|" +
+                                u.getEmail()
+                );
+                writer.write("\n");
+            }
+
+            writer.write("\nROLES\n");
+            for (Role r : roleManager.findAll()) {
+                writer.write(r.getId()+ "|" +
+                        r.getName() + "|" +
+                        r.getPermissions()+ "|"
+                );
+                writer.write("\n");
+            }
+
+            writer.write("\nASSIGNMENTS\n");
+            for (RoleAssignment ra : assignmentManager.findAll()){
+                writer.write(ra.assignmentId() + "|" +
+                        ra.assignmentType() + "|" +
+                        ra.user() + "|" +
+                        ra.role() + "|"
+                );
+                writer.write("\n");
+            }
+        }
     }
 }
