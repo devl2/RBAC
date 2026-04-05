@@ -156,7 +156,7 @@ public class RBACSystem {
                 }
             }
 
-            System.out.println("expired:" + expiredCount + "\ntemp assignments: " + temporaryAssignments.size());
+            System.out.println("expired: " + expiredCount + "\ntemp assignments: " + temporaryAssignments.size());
 
         }, 0, N, TimeUnit.SECONDS);
 
