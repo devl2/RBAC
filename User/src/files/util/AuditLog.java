@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class AuditLog {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private List<AuditEntry> entries = new ArrayList<>();
+    private final List<AuditEntry> entries = Collections.synchronizedList(new ArrayList<>());
+    private final LinkedBlockingQueue <AuditEntry> queue = new LinkedBlockingQueue<>();
+    private final Thread workerThread;
 
     public record AuditEntry(
             String timestamp,
@@ -17,6 +20,28 @@ public class AuditLog {
             String target,
             String details
     ) {}
+
+    public AuditLog(){
+        workerThread = new Thread(() -> {
+            while(true){
+                try {
+                    AuditEntry entry = queue.take();
+                    entries.add(entry);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
+
+        workerThread.start();
+    }
+
+    public void flush() throws InterruptedException{
+        while(!queue.isEmpty()){
+            Thread.sleep(1);
+        }
+    }
 
     public void log(String action, String performer, String target, String details) {
 
@@ -30,7 +55,7 @@ public class AuditLog {
                 details
         );
 
-        entries.add(entry);
+        queue.add(entry);
     }
 
     public List<AuditEntry> getAll() {
@@ -51,12 +76,13 @@ public class AuditLog {
     }
 
     public List<AuditEntry> getByAction(String action) {
-
         List<AuditEntry> result = new ArrayList<>();
 
-        for (AuditEntry entry : entries) {
-            if (entry.action().equalsIgnoreCase(action)) {
-                result.add(entry);
+        synchronized (entries){
+            for (AuditEntry entry : entries) {
+                if (entry.action().equalsIgnoreCase(action)) {
+                    result.add(entry);
+                }
             }
         }
 
@@ -64,42 +90,42 @@ public class AuditLog {
     }
 
     public void printLog() {
-
         if (entries.isEmpty()) {
-            System.out.println("Audit log is empty");
+            System.out.println("Audit log пуст");
             return;
         }
 
-        for (AuditEntry e : entries) {
-            System.out.printf(
-                    "[%s] ACTION=%s | PERFORMER=%s | TARGET=%s | DETAILS=%s%n",
-                    e.timestamp(),
-                    e.action(),
-                    e.performer(),
-                    e.target(),
-                    e.details()
-            );
-        }
-    }
-
-    public void saveToFile(String filename) {
-
-        try (FileWriter writer = new FileWriter(filename)) {
-
+        synchronized (entries) {
             for (AuditEntry e : entries) {
-
-                writer.write(String.format(
+                System.out.printf(
                         "[%s] ACTION=%s | PERFORMER=%s | TARGET=%s | DETAILS=%s%n",
                         e.timestamp(),
                         e.action(),
                         e.performer(),
                         e.target(),
                         e.details()
-                ));
+                );
             }
+        }
+    }
 
+    public void saveToFile(String filename) {
+        try (FileWriter writer = new FileWriter(filename)) {
+            synchronized (entries) {
+                for (AuditEntry e : entries) {
+
+                    writer.write(String.format(
+                            "[%s] ACTION=%s | PERFORMER=%s | TARGET=%s | DETAILS=%s%n",
+                            e.timestamp(),
+                            e.action(),
+                            e.performer(),
+                            e.target(),
+                            e.details()
+                    ));
+                }
+            }
         } catch (IOException e) {
-            System.out.println("Error saving audit log: " + e.getMessage());
+            System.out.println("Ошибка сохранения в AuditLog: " + e.getMessage());
         }
     }
 }
