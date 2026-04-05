@@ -6,6 +6,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import util.AuditLog;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.ScheduledExecutorService;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RBACSystemTest {
@@ -63,9 +67,9 @@ public class RBACSystemTest {
     @DisplayName("Генерация статистики")
     public void testGenerateStatistics() {
         String stats = system.generateStatistics();
-        assertTrue(stats.contains("Users: 1"), "Статистика должна содержать 1 пользователя");
+        assertTrue(stats.contains("Users: 2"), "Статистика должна содержать 2 пользователей");
         assertTrue(stats.contains("Roles: 3"), "Статистика должна содержать 3 роли");
-        assertTrue(stats.contains("Assignments: 1"), "Статистика должна содержать 1 назначение");
+        assertTrue(stats.contains("Assignments: 2"), "Статистика должна содержать 2 назначения");
     }
 
     @Test
@@ -73,5 +77,26 @@ public class RBACSystemTest {
     public void testCurrentUserGetterSetter() {
         system.setCurrentUser("testAdmin");
         assertEquals("testAdmin", system.getCurrentUser());
+    }
+
+    @Test
+    @DisplayName("Проверка метода schedule tasks")
+    void scheduleTasks() throws InterruptedException {
+        RBACSystem system = new RBACSystem(new AuditLog());
+        system.initialize();
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(output));
+
+        ScheduledExecutorService scheduler = system.scheduleTasks(1);
+
+        Thread.sleep(1500);
+
+        scheduler.shutdownNow();
+
+        String result = output.toString().trim();
+
+        assertTrue(result.contains("expired: 0"));
+        assertTrue(result.contains("temp assignments: 1"));
     }
 }
