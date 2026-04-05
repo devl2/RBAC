@@ -5,9 +5,12 @@ import managers.*;
 import util.*;
 import filters.*;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 public class CommandRegistry extends CommandParser {
     public CommandRegistry(){
@@ -956,6 +959,42 @@ public class CommandRegistry extends CommandParser {
 
                     System.out.println(report);
                 });
+        registerCommand(
+                "report-users-async",
+                "запуск генерации отчета в отдельном потоке",
+                (scanner, system) -> {
+                    ExecutorService executor = system.getExecutorService();
+
+                    executor.submit(() -> {
+                        try {
+                            ReportGenerator reportGenerator = new ReportGenerator();
+
+                            String report = reportGenerator.generateUserReport(system.getUserManager(), system.getAssignmentManager());
+
+                            System.out.println(report);
+                        } catch (Exception ex) {
+                            System.err.println("Ошибка генерации отчета: " + ex.getMessage());
+                        }
+                    });
+                }
+        );
+        registerCommand(
+                "save-async",
+                "сохранение данных в файл в фоне",
+                (scanner, system) -> {
+                    ExecutorService executor = system.getExecutorService();
+
+                    executor.submit(() -> {
+                        try {
+                            system.saveToFile();
+                            System.out.println("Данные сохранены");
+                        } catch (Exception e) {
+                            System.out.println("Ошибка сохранения: " + e.getMessage());
+                        }
+                    });
+
+                }
+        );
     }
 
     private void printTable(List<User> users) {
@@ -970,6 +1009,5 @@ public class CommandRegistry extends CommandParser {
                     u.getEmail());
         }
     }
-
 
 }
