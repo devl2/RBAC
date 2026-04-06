@@ -1,0 +1,12 @@
+USERS
+testAdmin|Admin Adminovi4|admin@pochta.ru
+tempUser|User User|user@pochta.ru
+
+ROLES
+role_67737371-2b8b-4be2-af94-fe5bbb61eac5|MANAGER|[Permission[name=WRITE, resource=document, description=Write], Permission[name=READ, resource=document, description=Read]]|
+role_73c9fca7-135e-4651-bc6b-f623f399824a|ADMIN|[Permission[name=DELETE, resource=document, description=Delete], Permission[name=WRITE, resource=document, description=Write], Permission[name=READ, resource=document, description=Read]]|
+role_b2b86c54-bcc2-4b32-a982-ef83744bd447|USER|[Permission[name=READ, resource=document, description=Read]]|
+
+ASSIGNMENTS
+assign_a5e9895d-8d59-4067-b7b0-a6111bbacfcf|PERMANENT|User[username=testAdmin, fullname=Admin Adminovi4, email=admin@pochta.ru]|Role{id='role_73c9fca7-135e-4651-bc6b-f623f399824a', name='ADMIN', permissions=3}|
+assign_70290a1f-4a93-40d4-95a3-3c76ad53cedb|TEMPORARY|User[username=tempUser, fullname=User User, email=user@pochta.ru]|Role{id='role_b2b86c54-bcc2-4b32-a982-ef83744bd447', name='USER', permissions=1}|
